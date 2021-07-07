@@ -1,0 +1,86 @@
+--그룹함수 (여러개에서 한개의 결과값이 나오는것) 그룹함수에는 where절 불가!! having으로 대체한다***
+--emp테이블(전체사원그룹)
+select sum(sal) "사원전체급여합",
+        max(sal) "사원전체최대급여",
+        min(sal) 사원전체최저급여,
+        round(avg(sal)) 사원전체급여평균,
+        count(*) "사원수 count(*) [O]", --카운트는 항상 *과쓰자 앵간하면
+        count(empno) "사원수 count(empno) [x]" ,--이렇게 쓰지말것
+        count(comm) "커미션받는사원수",
+        avg(comm) "평균커미션(null)제외"
+from emp;
+
+select * from emp;
+--부서별로 그룹핑
+select deptno,
+        count(*) "부서별인원수",
+        round(avg(sal)) "부서별급여평균",
+        max(sal) "부서별최대급여",
+        min(sal) "부서별최소급여",
+        sum(sal) "부서별급여합"
+from emp
+group by deptno
+order by deptno;
+
+--부서별, 직급별 
+select deptno ,job, count(*) "부서직급별인원", avg(sal) "부서직급평균"
+from emp
+where 1= 1
+group by deptno, job
+order by deptno, job;
+
+--having절(grouping filtering)
+select deptno, round(avg(sal)) "부서별급여평균"
+from emp where 1=1
+group by deptno
+having avg(sal) >= 2000
+order by deptno;
+
+--사원테이블로부터 부서번호, 업부별 급여합계를 계산
+select deptno, job, sum(sal)
+from emp
+group by deptno, job
+order by deptno;
+/*
+10	CLERK	    1300
+10	MANAGER	    2450
+10	PRESIDENT	5000
+20	ANALYST	    6000
+20	CLERK   	1900
+20	MANAGER	    2975
+30	CLERK   	950
+30	MANAGER	    2850
+30	SALESMAN	5600
+*/
+
+--가로출력
+select deptno ,sum(0) CLERK, sum(0) MANAGER ,sum(0) PRESIDENT,sum(0) ANALYST,sum(0) SALESMAN
+from emp
+group by deptno
+order by deptno;
+
+--가로출력
+select to_char(hiredate, 'YYYY') "연도" ,
+        sum(0) "1월" ,sum(0) "2월" ,sum(0) "3월" ,sum(0) "4월" ,
+        sum(0) "5월" ,sum(0) "6월" ,sum(0) "7월" ,sum(0) "8월" ,
+        sum(0) "9월" ,sum(0) "10월" ,sum(0) "11월" ,sum(0) "12월"        
+from emp
+group by to_char(hiredate, 'YYYY')
+order by "연도";
+
+select to_char(hiredate, 'YYYY') "년", to_char(hiredate, 'MM') "월"
+from emp
+group by to_char(hiredate, 'YYYY'), to_char(hiredate, 'MM')
+order by "년", "월";
+
+
+
+
+
+
+
+
+
+
+
+

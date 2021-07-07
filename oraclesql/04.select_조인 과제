@@ -1,0 +1,174 @@
+SELECT
+    *
+FROM
+    emp;
+
+SELECT
+    hisal
+FROM
+    emp;
+
+SELECT
+    *
+FROM
+    dept;
+
+--1
+--oracle
+SELECT
+    empno,
+    ename,
+    e.deptno,
+    dname
+FROM
+    emp   e,
+    dept  d
+WHERE
+    e.deptno = d.deptno
+ORDER BY
+    ename;
+--ansi
+SELECT
+    empno,
+    ename,
+    deptno,
+    dname
+FROM
+         emp e
+    NATURAL JOIN dept d
+ORDER BY
+    ename;
+
+--2
+--oracle
+SELECT
+    empno,
+    ename,
+    sal,
+    dname
+FROM
+    emp   e,
+    dept  d
+WHERE
+        e.sal > 2000
+    AND e.deptno = d.deptno
+ORDER BY
+    sal DESC;
+
+--ansi
+SELECT
+    empno,
+    ename,
+    sal,
+    dname
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+                   AND e.sal > 2000
+ORDER BY
+    sal DESC;
+--3
+--oracle
+SELECT
+    empno,
+    ename,
+    job,
+    dname
+FROM
+    emp   e,
+    dept  d
+WHERE
+        e.deptno = d.deptno
+    AND e.sal >= 2500
+    AND e.job = 'MANAGER'
+ORDER BY
+    empno;
+--ansi
+SELECT
+    empno,
+    ename,
+    job,
+    dname
+FROM
+         emp e
+    JOIN dept d ON e.deptno = d.deptno
+                   AND e.sal >= 2500
+                   AND e.job = 'MANAGER'
+ORDER BY
+    empno;
+--4
+--oracle
+
+SELECT
+    empno,
+    ename,
+    sal,
+    grade
+FROM
+    emp       e,
+    salgrade  s
+WHERE
+        e.sal <= s.hisal
+    AND e.sal >= s.losal
+    AND s.grade = 4
+ORDER BY
+    sal DESC;
+
+--ansi
+SELECT
+    empno,
+    ename,
+    sal,
+    grade
+FROM
+         emp e
+    JOIN salgrade s ON e.sal <= s.hisal
+                       AND e.sal >= s.losal
+                       AND s.grade = 4
+ORDER BY
+    sal DESC;
+
+--5
+--oracle
+select empno, ename, dname, sal, grade from emp e, dept d,salgrade s WHERE
+        e.sal <= s.hisal
+    AND e.sal >= s.losal
+    AND e.deptno = d.deptno
+ORDER BY
+    grade DESC;
+--ansi
+select empno, ename, dname, sal, grade 
+from emp e join dept d on e.deptno = d.deptno join salgrade s 
+on e.sal <= s.hisal AND e.sal >= s.losal
+ORDER BY
+    grade DESC;
+                       
+--6
+--oracle
+
+select e.ename, m.ename from emp e, emp m where e.mgr = m.empno ;
+
+--ansi
+select e.ename, m.ename from emp e join emp m on e.mgr = m.empno ;
+
+--7
+--oracle
+select e.ename, m.ename, p.ename from emp e, emp m, emp p 
+where e.mgr = m.empno and m.mgr = p.empno;
+
+
+--ansi
+select e.ename, m.ename, p.ename from emp e join emp m on e.mgr = m.empno
+                                            join emp p on m.mgr = p.empno;
+--8
+--oracle
+select * from emp;
+select e.ename, m.ename, p.ename from emp e, emp m, emp p 
+where e.mgr = m.empno(+) and m.mgr = p.empno(+);
+
+
+--ansi
+select e.ename, m.ename, p.ename from emp e left join emp m on e.mgr = m.empno
+                                             left join emp p on m.mgr = p.empno;
+
+
