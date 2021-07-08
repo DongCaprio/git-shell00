@@ -1,0 +1,179 @@
+--scalar subquery
+-- 단일행연산자
+select sal from emp where ename = 'SMITH';
+select sal from emp where ename = 'SCOTT';
+select * from emp where sal > 800 and sal < 3000;
+
+select *  
+from emp  
+where sal < (select sal 
+            from emp 
+            where ename = 'SCOTT')
+and sal > (select sal 
+           from emp 
+           where ename = 'SMITH') ; --서브쿼리를 쓸때는 항상 괄호를 사용해야한다.
+
+-- emp에서 최소급여를 받는 사원정보출력
+
+select min(sal) from emp;
+select * from emp where sal = (select min(sal) from emp);
+
+--emp에서 부서별 최소급여를 받는 사원정보출력
+select min(sal) from emp
+group by deptno;
+
+select * from emp where sal = (select min(sal) 
+                                from emp
+                                group by deptno); --단일행연산자인데 값이 여러개여서 에러
+                                
+select deptno, min(sal) from emp
+group by deptno
+having min(sal)> (select min(sal) from emp where deptno=20);
+
+
+
+--복수행 연산자(in, any, all)
+select * from emp where sal in (950, 800, 1300);
+select * from emp where sal in (select min(sal) 
+                                from emp
+                                group by deptno);
+
+select * from emp where job in (select distinct job from emp where sal>= 2000) order by deptno;
+select * from emp where job in ('PRESIDENT','MANAGER','ANALYST') order by deptno;
+
+--all (전부다)
+select sal from emp where job ='MANAGER';
+select * from emp where sal < all(2975, 2850, 2450);
+select * from emp where sal < all(select sal from emp where job ='MANAGER');
+
+select * from emp where sal > all(2975, 2850, 2450);
+select * from emp where sal > all(select sal from emp where job ='MANAGER');
+
+--any (그중에 하나라도)
+select sal from emp where job ='MANAGER';
+select * from emp where sal < any(2975, 2850, 2450);
+select * from emp where sal < any(select sal from emp where job ='MANAGER');
+
+select * from emp where sal > any(2975, 2850, 2450);
+select * from emp where sal > any(select sal from emp where job ='MANAGER');
+
+--colum위에 subquery 기술
+--scalar subquery  vs   join
+select empno, 
+        ename,
+        (select dname from dept where dept.deptno = emp.deptno) "dname", 
+        (select dname from dept where dept.deptno = emp.deptno) "loc" 
+        from emp; --비추 join을 쓰는게 훨신 많이 쓰인다
+        
+select empno,
+        ename,
+        dname,
+        loc
+from emp natural join dept;
+
+--inline view subquery
+
+--view(논리적테이블)
+
+create view emp10_view
+as 
+select empno, ename, job, sal
+from emp
+where deptno = 10;
+
+select * from emp10_view;
+
+select * from ( select empno, ename, job, sal
+                from emp
+                where deptno = 10);
+                
+--emp 부서별로 최소연봉을 가진 직원의 사번 이름 연봉을 읽어오세요
+
+select deptno, min(sal)
+from emp
+group by deptno;
+/*
+30	950
+20	800
+10	1300
+*/
+select * from emp;
+/*
+7369	SMITH	CLERK	    7902	80/12/17	800		20
+7499	ALLEN	SALESMAN	7698	81/02/20	1600	300	30
+*/
+select e2.empno, e2.ename, e2.sal  ,e1.deptno, e1."min_sal"
+from (select deptno, min(sal) "min_sal"
+        from emp 
+        group by deptno) e1
+join emp e2
+on e1."min_sal"=e2.sal;
+/*********************************************************************
+--동일한 직급을 가진 사원의 평균연봉보다 연봉이 높은 사원 출력
+***********************************************************************/
+--1. 동일한 직급을 가진 사원의 평균연봉테이블
+select job, round(avg(sal)) from emp group by job;
+/*
+CLERK	    1038
+SALESMAN	1400
+PRESIDENT	5000
+MANAGER 	2758
+ANALYST	    3000
+*/
+--2. 사원테이블
+/*
+7369	SMITH	CLERK	    7902	80/12/17	800		20
+7499	ALLEN	SALESMAN	7698	81/02/20	1600	300	30
+*/
+select e2.empno, e2.ename, e2.job, e2.sal, e1.job, e1."job_avg_sal" 
+from (select job,round(avg(sal)) "job_avg_sal"
+        from emp
+        group by job) e1
+        join emp e2
+        on e1.job=e2.job and e2.sal > e1."job_avg_sal";
+
+/*
+rownum (pseudo(유사) column)
+    - 오라클에서만 사용가능한 컬럼
+    - SELECT 시에 조건에맞는 행에 순차적부여
+    - where 조건문에서 1번을 포함하는 범위조건내에서는 사용가능
+    - where 조건문에서 1번을 포함하지않는 범위조건내에서는 사용불가능
+*/
+select rownum,emp.* from emp;
+
+--XXX
+select rownum,empno,ename,sal 
+from emp
+order by sal desc;
+
+--이렇게 쓰면 안된다!
+select rownum "sal_rank" ,e.empno,e.ename,e.sal 
+from (select * 
+        from emp 
+        order by sal desc
+      ) e
+where rownum>=6 and rownum<=10;
+
+
+--이렇게 써야한다
+select * from ( 
+                    select rownum "sal_rank", e.empno, e.ename ,e.sal
+                    from (select * 
+                            from emp 
+                            order by sal desc
+                            ) e
+                ) e1
+ where e1."sal_rank" >= 6 and e1."sal_rank" <= 10 ; 
+-- 실행순서 1번 테이블 2번 where 3번 
+
+
+
+
+
+
+
+
+
+
+
+

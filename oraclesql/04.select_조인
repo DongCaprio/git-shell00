@@ -341,3 +341,31 @@ FROM
     LEFT OUTER JOIN dept  d ON e.deptno = d.deptno
 WHERE
     e.sal > 1000;
+    
+select d.deptno, d.dname, e.sal from emp e right outer join dept d on e.deptno=d.deptno;
+
+/*
+급여가 2000이 넘는 직원들에 대해 각 부서별 급여의 합을 구하시오.
+*/
+-- 1. 원데이타(부서,급여)
+select d.deptno,d.dname,e.sal from emp e right outer join dept d on e.deptno=d.deptno;
+-- 2.각 부서별 급여의 합을 구하시오.
+select d.deptno,decode(sum(e.sal),null,0,sum(e.sal)) "부서별급여합계" 
+from emp e right outer join dept d on e.deptno=d.deptno
+group by d.deptno
+order by d.deptno asc;
+
+-- 3.급여가 2000이 넘는 직원들에 대해 각 부서별 급여의 합을 구하시오
+
+select d.deptno,decode(sum(e.sal),null,0,sum(e.sal)) "부서별급여합계" 
+from emp e right outer join dept d on e.deptno=d.deptno
+where e.sal>2000
+group by d.deptno
+order by d.deptno asc;
+
+
+select d.deptno,decode(sum(e.sal),null,0,sum(e.sal)) "부서별급여합계" 
+from emp e right outer join dept d on e.deptno=d.deptno and e.sal>2000
+group by d.deptno
+order by d.deptno asc;
+
