@@ -1,3 +1,8 @@
+--*************** 쿼리 실행순서 매우중요********
+-- from , where , group by, having, select, order by 
+-- 이건 외우자..
+
+
 --scalar subquery
 -- 단일행연산자
 select sal from emp where ename = 'SMITH';
@@ -22,6 +27,7 @@ select * from emp where sal = (select min(sal) from emp);
 select min(sal) from emp
 group by deptno;
 
+
 select * from emp where sal = (select min(sal) 
                                 from emp
                                 group by deptno); --단일행연산자인데 값이 여러개여서 에러
@@ -38,6 +44,7 @@ select * from emp where sal in (select min(sal)
                                 from emp
                                 group by deptno);
 
+
 select * from emp where job in (select distinct job from emp where sal>= 2000) order by deptno;
 select * from emp where job in ('PRESIDENT','MANAGER','ANALYST') order by deptno;
 
@@ -45,6 +52,8 @@ select * from emp where job in ('PRESIDENT','MANAGER','ANALYST') order by deptno
 select sal from emp where job ='MANAGER';
 select * from emp where sal < all(2975, 2850, 2450);
 select * from emp where sal < all(select sal from emp where job ='MANAGER');
+
+select min(sal), max(sal), job from emp group by job;
 
 select * from emp where sal > all(2975, 2850, 2450);
 select * from emp where sal > all(select sal from emp where job ='MANAGER');
@@ -64,6 +73,8 @@ select empno,
         (select dname from dept where dept.deptno = emp.deptno) "dname", 
         (select dname from dept where dept.deptno = emp.deptno) "loc" 
         from emp; --비추 join을 쓰는게 훨신 많이 쓰인다
+        
+        
         
 select empno,
         ename,
